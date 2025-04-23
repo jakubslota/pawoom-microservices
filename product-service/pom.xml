@@ -8,7 +8,6 @@
 		<version>1.0.0</version>
 		<relativePath>../pom.xml</relativePath> <!-- ważne! -->
 	</parent>
-	<groupId>com.bookstore</groupId>
 	<artifactId>product-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>product-service</name>
@@ -60,6 +59,10 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
 		</dependency>
 	</dependencies>
 
