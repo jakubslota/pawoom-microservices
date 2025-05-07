@@ -30,4 +30,12 @@ public class BookService {
     public void delete(Long id) {
         bookRepository.deleteById(id);
     }
+
+    public Book update(Long id, Book book) {
+        if (!bookRepository.existsById(id)) {
+            return null;
+        }
+        book.setId(id);
+        return bookRepository.save(book);
+    }
 }

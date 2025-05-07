@@ -37,4 +37,9 @@ public class BookController {
         bookService.delete(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Book> update(@PathVariable("id") Long id, @RequestBody Book book) {
+        return ResponseEntity.ok(bookService.update(id, book));
+    }
 }

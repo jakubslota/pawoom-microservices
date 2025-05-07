@@ -1,5 +1,4 @@
 package com.bookstore.product_service.entities;
-
 import jakarta.persistence.*;
 import lombok.*;
 
