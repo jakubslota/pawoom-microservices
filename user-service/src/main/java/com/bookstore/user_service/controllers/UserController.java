@@ -2,6 +2,7 @@ package com.bookstore.user_service.controllers;
 
 import com.bookstore.user_service.entities.User;
 import com.bookstore.user_service.services.UserService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,6 +21,7 @@ public class UserController {
         this.userService = userService;
     }
 
+    @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/me")
     public ResponseEntity<User> authenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -29,6 +31,7 @@ public class UserController {
         return ResponseEntity.ok(currentUser);
     }
 
+    @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/")
     public ResponseEntity<List<User>> allUsers() {
         List <User> users = userService.allUsers();
