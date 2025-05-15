@@ -12,7 +12,8 @@
         <module>user-service</module>
         <module>product-service</module>
         <module>eureka-server</module>
-        <module>cart-order-service</module>
+        <module>order-service</module>
+        <module>cart-service</module>
         <module>api-gateway</module>
     </modules>
 
