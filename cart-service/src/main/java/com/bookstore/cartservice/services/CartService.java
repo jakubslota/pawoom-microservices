@@ -3,6 +3,7 @@ package com.bookstore.cartservice.services;
 import com.bookstore.cartservice.entities.CartItem;
 import com.bookstore.cartservice.repositories.CartItemRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 
@@ -35,6 +36,7 @@ public class CartService {
         return cartItemRepository.save(item);
     }
 
+    @Transactional
     public void clearCart(Long userId) {
         cartItemRepository.deleteByUserId(userId);
     }
