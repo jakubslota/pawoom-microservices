@@ -38,4 +38,24 @@ public class BookService {
         book.setId(id);
         return bookRepository.save(book);
     }
+    public boolean decreaseStock(Long id, int qty) {
+        Book book = findById(id);
+        if (book == null || book.getQuantity() < qty) {
+            return false;
+        }
+        book.setQuantity(book.getQuantity() - qty);
+        bookRepository.save(book);
+        return true;
+    }
+
+    public boolean increaseStock(Long id, int qty) {
+        Book book = findById(id);
+        if (book == null) {
+            return false;
+        }
+        book.setQuantity(book.getQuantity() + qty);
+        bookRepository.save(book);
+        return true;
+    }
+
 }

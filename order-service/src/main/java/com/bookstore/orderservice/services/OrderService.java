@@ -4,13 +4,16 @@ import com.bookstore.orderservice.entities.Order;
 import com.bookstore.orderservice.entities.OrderItem;
 import com.bookstore.orderservice.repositories.OrderItemRepository;
 import com.bookstore.orderservice.repositories.OrderRepository;
+import com.bookstore.orderservice.util.JwtUtil;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import com.bookstore.orderservice.security.ServiceJwtUtil;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.math.BigDecimal;
 
 @Service
 public class OrderService {
@@ -18,18 +21,38 @@ public class OrderService {
     private final OrderRepository orderRepo;
     private final OrderItemRepository orderItemRepo;
     private final RestTemplate restTemplate;
+    private final JwtUtil jwtUtil;
+    private final ServiceJwtUtil serviceJwtUtil;
 
-    public OrderService(OrderRepository orderRepo, OrderItemRepository orderItemRepo, RestTemplate restTemplate) {
+    public OrderService(OrderRepository orderRepo,
+                        OrderItemRepository orderItemRepo,
+                        RestTemplate restTemplate,
+                        JwtUtil jwtUtil, ServiceJwtUtil serviceJwtUtil) {
         this.orderRepo = orderRepo;
         this.orderItemRepo = orderItemRepo;
         this.restTemplate = restTemplate;
+        this.jwtUtil = jwtUtil;
+        this.serviceJwtUtil = serviceJwtUtil;
     }
 
-    public Order placeOrder(Long userId, String status) {
-        Map<String, Object> cartResponse = restTemplate.getForObject(
-                "http://CART-SERVICE/cart/" + userId,
+    public Order placeOrderInternal(Long userId, String status) {
+        // Pobierz koszyk użytkownika – z tokenem serwisowym
+        String serviceToken = serviceJwtUtil.generateServiceToken("order-service", 600_000);
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + serviceToken);
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+        ResponseEntity<Map> response = restTemplate.exchange(
+                "http://CART-SERVICE/cart/internal/" + userId,
+                HttpMethod.GET,
+                entity,
                 Map.class
         );
+
+        Map<String, Object> cartResponse = response.getBody();
+        if (cartResponse == null || !cartResponse.containsKey("items")) {
+            throw new IllegalStateException("Cart is empty or unavailable");
+        }
 
         List<Map<String, Object>> items = (List<Map<String, Object>>) cartResponse.get("items");
         if (items == null || items.isEmpty()) {
@@ -46,7 +69,19 @@ public class OrderService {
             orderItemRepo.save(new OrderItem(order.getId(), productId, quantity, price));
         }
 
-        restTemplate.delete("http://CART-SERVICE/cart/" + userId);
+        // Wyczyść koszyk
+        restTemplate.exchange(
+                "http://CART-SERVICE/cart/internal/" + userId + "?manual=false",
+                HttpMethod.DELETE,
+                entity,
+                Void.class
+        );
+
         return order;
+    }
+
+    public List<Order> getMyOrders(String authHeader) {
+        Long userId = jwtUtil.extractUserId(authHeader);
+        return orderRepo.findByUserId(userId);
     }
 }

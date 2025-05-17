@@ -28,6 +28,9 @@ public class AuthenticationService {
     }
 
     public User signup(RegisterUserDto input) {
+        if (userRepository.existsByEmail(input.getEmail())) {
+            throw new RuntimeException("Użytkownik z takim adresem e-mail już istnieje");
+        }
         User user = new User()
                 .setFullName(input.getFullName())
                 .setEmail(input.getEmail())

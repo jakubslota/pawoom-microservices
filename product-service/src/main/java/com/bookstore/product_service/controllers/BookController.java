@@ -42,4 +42,18 @@ public class BookController {
     public ResponseEntity<Book> update(@PathVariable("id") Long id, @RequestBody Book book) {
         return ResponseEntity.ok(bookService.update(id, book));
     }
+
+    @PutMapping("/{id}/decrease")
+    public ResponseEntity<?> decreaseQuantity(@PathVariable Long id, @RequestParam int qty) {
+        boolean success = bookService.decreaseStock(id, qty);
+        if (!success) return ResponseEntity.badRequest().body("Not enough quantity or book not found");
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{id}/increase")
+    public ResponseEntity<?> increaseQuantity(@PathVariable Long id, @RequestParam int qty) {
+        boolean success = bookService.increaseStock(id, qty);
+        if (!success) return ResponseEntity.badRequest().body("Book not found");
+        return ResponseEntity.ok().build();
+    }
 }
