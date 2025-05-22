@@ -1,5 +1,6 @@
 package com.bookstore.orderservice.controllers;
 
+import com.bookstore.orderservice.dtos.OrderDto;
 import com.bookstore.orderservice.entities.Order;
 import com.bookstore.orderservice.services.OrderService;
 import com.bookstore.orderservice.security.ServiceJwtUtil;
@@ -53,11 +54,11 @@ public class OrderController {
     }
 
     // Pobieranie zamówień użytkownika
-    @GetMapping("/mine")
-    public ResponseEntity<List<Order>> getMyOrders(
+    @GetMapping
+    public ResponseEntity<List<OrderDto>> getMyOrders(
             @RequestHeader("Authorization") String authHeader
     ) {
-        List<Order> orders = service.getMyOrders(authHeader);
+        List<OrderDto> orders = service.getMyOrders(authHeader);
         return ResponseEntity.ok(orders);
     }
 }

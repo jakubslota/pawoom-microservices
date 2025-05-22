@@ -1,5 +1,7 @@
 package com.bookstore.orderservice.services;
 
+import com.bookstore.orderservice.dtos.OrderDto;
+import com.bookstore.orderservice.dtos.OrderItemDto;
 import com.bookstore.orderservice.entities.Order;
 import com.bookstore.orderservice.entities.OrderItem;
 import com.bookstore.orderservice.repositories.OrderItemRepository;
@@ -80,8 +82,32 @@ public class OrderService {
         return order;
     }
 
-    public List<Order> getMyOrders(String authHeader) {
+    public List<OrderDto> getMyOrders(String authHeader) {
         Long userId = jwtUtil.extractUserId(authHeader);
-        return orderRepo.findByUserId(userId);
+        List<Order> orders = orderRepo.findByUserId(userId);
+
+        return orders.stream().map(order -> {
+            List<OrderItemDto> items = order.getItems().stream().map(item -> {
+                String title = "Unknown";
+                String author = "Unknown";
+                try {
+                    ResponseEntity<Map> response = restTemplate.getForEntity(
+                            "http://PRODUCT-SERVICE/products/" + item.getProductId(),
+                            Map.class
+                    );
+                    Map body = response.getBody();
+                    if (body != null) {
+                        title = body.get("title").toString();
+                        author = body.get("author").toString();
+                    }
+                } catch (Exception e) {
+                    System.out.println("Error fetching book info: " + e.getMessage());
+                }
+
+                return new OrderItemDto(title, author, item.getQuantity(), item.getPrice());
+            }).toList();
+
+            return new OrderDto(order.getId(), order.getOrderDate(), order.getStatus(), items);
+        }).toList();
     }
 }

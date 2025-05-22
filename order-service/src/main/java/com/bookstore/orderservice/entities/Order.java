@@ -14,7 +14,9 @@ public class Order {
     private Long userId;
     private LocalDateTime orderDate;
     private String status;
-
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "orderId", referencedColumnName = "id")
+    private java.util.List<OrderItem> items;
     public Order() {}
 
     public Order(Long userId, LocalDateTime orderDate, String status) {
@@ -47,4 +49,6 @@ public class Order {
     public void setStatus(String status) {
         this.status = status;
     }
+    public java.util.List<OrderItem> getItems() { return items; }
+    public void setItems(java.util.List<OrderItem> items) { this.items = items; }
 }
