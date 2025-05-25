@@ -43,12 +43,11 @@ public class StripeService {
                                                         .build())
                                         .build())
                         .build())
-                .putMetadata("userId", userId.toString()) // opcjonalnie do weryfikacji
+                .putMetadata("userId", userId.toString())
                 .build();
 
         Session session = Session.create(params);
 
-        // Zapisujemy transakcję lokalnie
         paymentRepository.save(new Payment(
                 userId,
                 session.getId(),

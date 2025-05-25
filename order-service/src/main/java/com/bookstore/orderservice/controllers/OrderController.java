@@ -43,7 +43,7 @@ public class OrderController {
         System.out.println("Authorization header: " + authHeader);
 
         if (!serviceJwtUtil.isValid(authHeader, "payment-service")) {
-            System.out.println("❌ Unauthorized service request.");
+            System.out.println("Unauthorized service request.");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
@@ -53,7 +53,6 @@ public class OrderController {
         return ResponseEntity.ok(order);
     }
 
-    // Pobieranie zamówień użytkownika
     @GetMapping
     public ResponseEntity<List<OrderDto>> getMyOrders(
             @RequestHeader("Authorization") String authHeader

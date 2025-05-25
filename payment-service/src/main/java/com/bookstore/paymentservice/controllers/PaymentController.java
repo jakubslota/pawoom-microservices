@@ -53,12 +53,10 @@ public class PaymentController {
     public ResponseEntity<Map<String, String>> create(@RequestHeader("Authorization") String authHeader) throws Exception {
         Long userId = jwtUtil.extractUserId(authHeader);
 
-        // Przygotuj nagłówki z tokenem JWT
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", authHeader);
         HttpEntity<Void> entity = new HttpEntity<>(headers);
 
-        // Pobierz koszyk z CART-SERVICE
         ResponseEntity<Map> response = restTemplate.exchange(
                 "http://CART-SERVICE/cart",
                 HttpMethod.GET,
@@ -73,7 +71,6 @@ public class PaymentController {
 
         BigDecimal amount = new BigDecimal(cart.get("total").toString());
 
-        // Utwórz sesję Stripe
         Session session = stripeService.createCheckoutSession(userId, amount, "PLN");
         return ResponseEntity.ok(Map.of("checkoutUrl", session.getUrl()));
     }
@@ -83,10 +80,10 @@ public class PaymentController {
                                                 @RequestHeader("Stripe-Signature") String sigHeader) {
         try {
             Event event = Webhook.constructEvent(payload, sigHeader, webhookSecret);
-            System.out.println("📩 Webhook received: " + event.getType());
+            System.out.println("Webhook received: " + event.getType());
 
             if ("checkout.session.completed".equals(event.getType())) {
-                System.out.println("✅ Session completed event detected");
+                System.out.println("Session completed event detected");
 
                 Session session = (Session) event.getData().getObject();
 
@@ -122,10 +119,10 @@ public class PaymentController {
             }
 
         } catch (SignatureVerificationException e) {
-            System.out.println("❌ Invalid signature: " + e.getMessage());
+            System.out.println("Invalid signature: " + e.getMessage());
             return ResponseEntity.status(400).body("Invalid signature");
         } catch (Exception e) {
-            System.out.println("❌ Webhook error: " + e.getMessage());
+            System.out.println("Webhook error: " + e.getMessage());
             return ResponseEntity.status(400).body("Error");
         }
 
